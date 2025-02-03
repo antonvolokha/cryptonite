@@ -1,2 +1,5 @@
-/results/*
+*/results/**/*
 *.enc
+.DS_Store
+
+hidden.mp3
