@@ -16,7 +16,7 @@ func deriveKey(password string) []byte {
 
 func Encrypt(data []byte, password string) ([]byte, error) {
 	key := deriveKey(password)
-	
+
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -55,4 +55,4 @@ func Decrypt(data []byte, password string) ([]byte, error) {
 
 	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
 	return gcm.Open(nil, nonce, ciphertext, nil)
-} 
+}
