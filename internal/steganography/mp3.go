@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 )
@@ -59,7 +60,9 @@ func HideInMP3(mp3Path string, data []byte, outputPath string) error {
 
 	// Write our hidden data
 	buf.Write([]byte(magicBytes))
-	binary.Write(buf, binary.LittleEndian, int64(len(data)))
+	if err := binary.Write(buf, binary.LittleEndian, int64(len(data))); err != nil {
+		return fmt.Errorf("failed to write data size: %w", err)
+	}
 	buf.Write(data)
 
 	// Write ID3v1 tag if exists

@@ -43,15 +43,23 @@ func (c *Container) Bytes() []byte {
 	buf := new(bytes.Buffer)
 
 	// Write number of files
-	binary.Write(buf, binary.LittleEndian, int64(len(c.Files)))
+	if err := binary.Write(buf, binary.LittleEndian, int64(len(c.Files))); err != nil {
+		// Since this is writing to a bytes.Buffer, errors are not expected
+		// but we should handle them anyway
+		panic(err)
+	}
 
 	for _, file := range c.Files {
 		// Write path length and path
-		binary.Write(buf, binary.LittleEndian, int64(len(file.Path)))
+		if err := binary.Write(buf, binary.LittleEndian, int64(len(file.Path))); err != nil {
+			panic(err)
+		}
 		buf.Write([]byte(file.Path))
 
 		// Write file size and data
-		binary.Write(buf, binary.LittleEndian, file.Size)
+		if err := binary.Write(buf, binary.LittleEndian, file.Size); err != nil {
+			panic(err)
+		}
 		buf.Write(file.Data)
 	}
 
@@ -107,7 +115,7 @@ func (c *Container) FromBytes(data []byte) error {
 func (c *Container) ExtractAll(outputDir string) error {
 	for _, file := range c.Files {
 		fullPath := filepath.Join(outputDir, filepath.Base(file.Path))
-		
+
 		// Create directories if needed
 		if err := os.MkdirAll(filepath.Dir(fullPath), 0755); err != nil {
 			return err
@@ -120,4 +128,4 @@ func (c *Container) ExtractAll(outputDir string) error {
 	}
 
 	return nil
-} 
+}

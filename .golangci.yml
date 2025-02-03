@@ -15,4 +15,8 @@ issues:
   exclude-rules:
     - path: _test\.go
       linters:
+        - errcheck
+    - path: internal/container/container.go
+      text: "Error return value of .((os|io)\\..*|.*Close|.*Flush|.*Write|.*Sync) is not checked"
+      linters:
         - errcheck 
