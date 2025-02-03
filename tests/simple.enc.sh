@@ -1,0 +1,2 @@
+go run ../cmd/main.go -encrypt -input ./data/very_secret_doc.pdf -output container.enc -password mysecretpass
+go run cmd/main.go -decrypt -input container.enc -output /path/to/extract -password mysecretpass
