@@ -1,4 +1,5 @@
-*/results/**/*
+results
+build
 *.enc
 .DS_Store
 

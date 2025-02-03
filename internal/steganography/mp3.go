@@ -9,8 +9,33 @@ import (
 )
 
 const (
-	magicBytes = "CRYPTED"
+	magicBytes  = "CRYPTED"
+	id3v2Header = "ID3"
 )
+
+// findMP3End finds the actual end of MP3 audio data
+func findMP3End(data []byte) int {
+	// Look for ID3v1 tag at the end (if exists)
+	if len(data) > 128 && bytes.Equal(data[len(data)-128:len(data)-125], []byte("TAG")) {
+		return len(data) - 128
+	}
+	return len(data)
+}
+
+// findMP3Start finds the start of actual MP3 audio data
+func findMP3Start(data []byte) int {
+	// Skip ID3v2 tag if present
+	if bytes.HasPrefix(data, []byte(id3v2Header)) {
+		// ID3v2 header is 10 bytes, but we need to read the size
+		if len(data) < 10 {
+			return 0
+		}
+		// Size is stored in 4 bytes (7 bits each) starting from byte 6
+		size := int(data[6])<<21 | int(data[7])<<14 | int(data[8])<<7 | int(data[9])
+		return 10 + size
+	}
+	return 0
+}
 
 func HideInMP3(mp3Path string, data []byte, outputPath string) error {
 	// Read MP3 file
@@ -19,18 +44,28 @@ func HideInMP3(mp3Path string, data []byte, outputPath string) error {
 		return err
 	}
 
+	// Find actual MP3 data boundaries
+	start := findMP3Start(mp3Data)
+	end := findMP3End(mp3Data)
+
 	// Create output buffer
 	buf := new(bytes.Buffer)
-	buf.Write(mp3Data)
 
-	// Write magic bytes
+	// Write header if exists
+	buf.Write(mp3Data[:start])
+
+	// Write MP3 data
+	buf.Write(mp3Data[start:end])
+
+	// Write our hidden data
 	buf.Write([]byte(magicBytes))
-
-	// Write data size
 	binary.Write(buf, binary.LittleEndian, int64(len(data)))
-
-	// Write encrypted data
 	buf.Write(data)
+
+	// Write ID3v1 tag if exists
+	if end < len(mp3Data) {
+		buf.Write(mp3Data[end:])
+	}
 
 	// Save result
 	return os.WriteFile(outputPath, buf.Bytes(), 0644)
@@ -65,4 +100,4 @@ func ExtractFromMP3(path string) ([]byte, error) {
 	}
 
 	return result, nil
-} 
+}

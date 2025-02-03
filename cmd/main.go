@@ -2,31 +2,46 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"syscall"
+
+	"golang.org/x/term"
 
 	"cryptoutils/internal/container"
 	"cryptoutils/internal/crypto"
 	"cryptoutils/internal/steganography"
 )
 
+func getPassword() string {
+	fmt.Print("Enter password: ")
+	password, err := term.ReadPassword(int(syscall.Stdin))
+	if err != nil {
+		log.Fatal("Could not read password:", err)
+	}
+	fmt.Println() // Add newline after password input
+	return string(password)
+}
+
 func main() {
 	encrypt := flag.Bool("encrypt", false, "Encrypt files")
 	decrypt := flag.Bool("decrypt", false, "Decrypt container")
-	password := flag.String("password", "", "Password for encryption/decryption")
 	input := flag.String("input", "", "Input file or directory")
 	output := flag.String("output", "", "Output container file")
 	mp3 := flag.String("mp3", "", "MP3 file to hide container in")
 
 	flag.Parse()
 
-	if *password == "" {
-		log.Fatal("Password is required")
-	}
-
 	if *input == "" {
 		log.Fatal("Input path is required")
+	}
+
+	// Get password securely
+	password := getPassword()
+	if password == "" {
+		log.Fatal("Password is required")
 	}
 
 	if *encrypt {
@@ -49,7 +64,7 @@ func main() {
 		}
 
 		// Encrypt container
-		encrypted, err := crypto.Encrypt(cont.Bytes(), *password)
+		encrypted, err := crypto.Encrypt(cont.Bytes(), password)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -83,7 +98,7 @@ func main() {
 		}
 
 		// Decrypt container
-		decrypted, err := crypto.Decrypt(encrypted, *password)
+		decrypted, err := crypto.Decrypt(encrypted, password)
 		if err != nil {
 			log.Fatal(err)
 		}
