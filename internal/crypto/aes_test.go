@@ -26,6 +26,11 @@ func TestEncryptDecrypt(t *testing.T) {
 			data:     []byte{0x00, 0x01, 0x02, 0x03},
 			password: "test123",
 		},
+		{
+			name:     "Large data",
+			data:     make([]byte, 1024*1024), // 1MB of data
+			password: "test123",
+		},
 	}
 
 	for _, tc := range testCases {
@@ -41,7 +46,7 @@ func TestEncryptDecrypt(t *testing.T) {
 			}
 
 			if !bytes.Equal(decrypted, tc.data) {
-				t.Errorf("Decrypted data doesn't match original.\nGot: %v\nWant: %v", decrypted, tc.data)
+				t.Errorf("Decrypted data doesn't match original")
 			}
 		})
 	}

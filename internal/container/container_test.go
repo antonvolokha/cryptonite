@@ -14,6 +14,7 @@ func TestContainer(t *testing.T) {
 	testFiles := map[string][]byte{
 		"file1.txt": []byte("Hello, World!"),
 		"file2.bin": {0x00, 0x01, 0x02, 0x03},
+		"large.dat": make([]byte, 1024*1024), // 1MB file
 	}
 
 	for name, content := range testFiles {
@@ -32,10 +33,13 @@ func TestContainer(t *testing.T) {
 		}
 	}
 
-	// Serialize container
+	// Test serialization
 	data := cont.Bytes()
+	if len(data) == 0 {
+		t.Error("Container serialization produced empty data")
+	}
 
-	// Deserialize to new container
+	// Test deserialization
 	newCont := NewContainer()
 	if err := newCont.FromBytes(data); err != nil {
 		t.Fatalf("FromBytes failed: %v", err)
@@ -55,6 +59,26 @@ func TestContainer(t *testing.T) {
 
 		if !bytes.Equal(file.Data, original) {
 			t.Errorf("File content mismatch for %s", file.Path)
+		}
+	}
+
+	// Test extraction
+	outputDir := filepath.Join(tmpDir, "output")
+	if err := newCont.ExtractAll(outputDir); err != nil {
+		t.Fatalf("ExtractAll failed: %v", err)
+	}
+
+	// Verify extracted files
+	for name, content := range testFiles {
+		path := filepath.Join(outputDir, name)
+		extracted, err := os.ReadFile(path)
+		if err != nil {
+			t.Errorf("Failed to read extracted file %s: %v", name, err)
+			continue
+		}
+
+		if !bytes.Equal(extracted, content) {
+			t.Errorf("Extracted content mismatch for %s", name)
 		}
 	}
 }

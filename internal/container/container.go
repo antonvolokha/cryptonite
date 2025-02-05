@@ -3,6 +3,7 @@ package container
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -138,15 +139,18 @@ func (c *Container) ExtractAllWithProgress(outputDir string, bar *progressbar.Pr
 
 		// Create directories if needed
 		if err := os.MkdirAll(filepath.Dir(fullPath), 0755); err != nil {
-			return err
+			return fmt.Errorf("failed to create directory: %w", err)
 		}
 
 		// Write file
 		if err := os.WriteFile(fullPath, file.Data, 0644); err != nil {
-			return err
+			return fmt.Errorf("failed to write file: %w", err)
 		}
 
-		bar.Add(1)
+		// Update progress bar
+		if err := bar.Add(1); err != nil {
+			return fmt.Errorf("failed to update progress: %w", err)
+		}
 	}
 
 	return nil

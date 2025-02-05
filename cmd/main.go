@@ -29,19 +29,19 @@ const version = "v0.0.1"
 
 func showHelp() {
 	fmt.Printf("%s\nVersion: %s\n\n", asciiArt, version)
-	fmt.Println("Usage:")
-	fmt.Println("  cryptonite [options]")
-	fmt.Println("\nOptions:")
+	fmt.Print("Usage:\n")
+	fmt.Print("  cryptonite [options]\n")
+	fmt.Print("\nOptions:\n")
 	flag.PrintDefaults()
-	fmt.Println("\nExamples:")
-	fmt.Println("  Encrypt file:")
-	fmt.Println("    cryptonite -encrypt -input secret.doc -output encrypted.bin")
-	fmt.Println("\n  Decrypt file:")
-	fmt.Println("    cryptonite -decrypt -input encrypted.bin -output secret.doc")
-	fmt.Println("\n  Hide in MP3:")
-	fmt.Println("    cryptonite -encrypt -input secret.doc -output hidden.mp3 -mp3 original.mp3")
-	fmt.Println("\n  Extract from MP3:")
-	fmt.Println("    cryptonite -decrypt -input hidden.mp3 -mp3 yes -output secret.doc")
+	fmt.Print("\nExamples:\n")
+	fmt.Print("  Encrypt file:\n")
+	fmt.Print("    cryptonite -encrypt -input secret.doc -output encrypted.bin\n")
+	fmt.Print("\n  Decrypt file:\n")
+	fmt.Print("    cryptonite -decrypt -input encrypted.bin -output secret.doc\n")
+	fmt.Print("\n  Hide in MP3:\n")
+	fmt.Print("    cryptonite -encrypt -input secret.doc -output hidden.mp3 -mp3 original.mp3\n")
+	fmt.Print("\n  Extract from MP3:\n")
+	fmt.Print("    cryptonite -decrypt -input hidden.mp3 -mp3 yes -output secret.doc\n")
 }
 
 func getPassword() string {
