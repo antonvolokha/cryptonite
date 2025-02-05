@@ -62,7 +62,7 @@ func getPassword() string {
 	if err != nil {
 		log.Fatal("Could not read password:", err)
 	}
-	fmt.Println() // Add newline after password input
+	fmt.Print("\n")
 	return string(password)
 }
 
@@ -84,7 +84,7 @@ func promptChoice(prompt string, options []string) int {
 	for {
 		fmt.Print("Enter your choice (1-" + fmt.Sprint(len(options)) + "): ")
 		if _, err := fmt.Scanln(&choice); err != nil {
-			fmt.Println("Invalid input, please try again")
+			fmt.Print("Invalid input, please try again\n")
 			continue
 		}
 		if choice > 0 && choice <= len(options) {
@@ -105,7 +105,7 @@ func main() {
 	flag.Parse()
 
 	// Show ASCII art header
-	fmt.Println(asciiArt)
+	fmt.Print(asciiArt)
 	fmt.Printf("Version: %s\n\n", version)
 
 	if *help {
