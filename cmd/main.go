@@ -50,7 +50,9 @@ func getPassword() string {
 	if (stat.Mode() & os.ModeCharDevice) == 0 {
 		// Data is being piped in
 		var password string
-		fmt.Scanln(&password)
+		if _, err := fmt.Scanln(&password); err != nil {
+			log.Fatal("Failed to read password:", err)
+		}
 		return password
 	}
 
@@ -67,23 +69,28 @@ func getPassword() string {
 func promptString(prompt string) string {
 	var input string
 	fmt.Print(prompt + ": ")
-	fmt.Scanln(&input)
+	if _, err := fmt.Scanln(&input); err != nil {
+		log.Fatal("Failed to read input:", err)
+	}
 	return input
 }
 
 func promptChoice(prompt string, options []string) int {
-	fmt.Println(prompt)
+	fmt.Print(prompt + "\n")
 	for i, opt := range options {
 		fmt.Printf("%d) %s\n", i+1, opt)
 	}
 	var choice int
 	for {
 		fmt.Print("Enter your choice (1-" + fmt.Sprint(len(options)) + "): ")
-		fmt.Scanln(&choice)
+		if _, err := fmt.Scanln(&choice); err != nil {
+			fmt.Println("Invalid input, please try again")
+			continue
+		}
 		if choice > 0 && choice <= len(options) {
 			return choice - 1
 		}
-		fmt.Println("Invalid choice, please try again")
+		fmt.Print("Invalid choice, please try again\n")
 	}
 }
 
@@ -147,12 +154,17 @@ func main() {
 
 		// Create progress bar for walking files
 		var totalFiles int
-		filepath.Walk(*input, func(path string, info os.FileInfo, err error) error {
+		if err := filepath.Walk(*input, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
 			if !info.IsDir() {
 				totalFiles++
 			}
 			return nil
-		})
+		}); err != nil {
+			log.Fatal("Failed to count files:", err)
+		}
 
 		bar := progressbar.Default(int64(totalFiles), "Processing files")
 
@@ -162,9 +174,12 @@ func main() {
 				return err
 			}
 			if !info.IsDir() {
-				err = cont.AddFile(path)
-				bar.Add(1)
-				return err
+				if err := cont.AddFile(path); err != nil {
+					return err
+				}
+				if err := bar.Add(1); err != nil {
+					return fmt.Errorf("failed to update progress: %w", err)
+				}
 			}
 			return nil
 		})
@@ -173,7 +188,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		fmt.Println("\nEncrypting data...")
+		fmt.Print("\nEncrypting data...\n")
 		bar = progressbar.Default(1, "Encrypting")
 
 		// Encrypt container
@@ -181,9 +196,11 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		bar.Add(1)
+		if err := bar.Add(1); err != nil {
+			log.Fatal("Failed to update progress:", err)
+		}
 
-		fmt.Println("\nSaving result...")
+		fmt.Print("\nSaving result...\n")
 		bar = progressbar.Default(1, "Saving")
 
 		if *mp3 != "" {
@@ -197,12 +214,14 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		bar.Add(1)
+		if err := bar.Add(1); err != nil {
+			log.Fatal("Failed to update progress:", err)
+		}
 
-		fmt.Println("\nOperation completed successfully!")
+		fmt.Print("\nOperation completed successfully!\n")
 
 	} else if *decrypt {
-		fmt.Println("Reading encrypted data...")
+		fmt.Print("Reading encrypted data...\n")
 		bar := progressbar.Default(1, "Reading")
 
 		var encrypted []byte
@@ -219,9 +238,11 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		bar.Add(1)
+		if err := bar.Add(1); err != nil {
+			log.Fatal("Failed to update progress:", err)
+		}
 
-		fmt.Println("\nDecrypting data...")
+		fmt.Print("\nDecrypting data...\n")
 		bar = progressbar.Default(1, "Decrypting")
 
 		// Decrypt container
@@ -229,9 +250,11 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		bar.Add(1)
+		if err := bar.Add(1); err != nil {
+			log.Fatal("Failed to update progress:", err)
+		}
 
-		fmt.Println("\nExtracting files...")
+		fmt.Print("\nExtracting files...\n")
 
 		// Extract files
 		cont := container.NewContainer()
@@ -246,6 +269,6 @@ func main() {
 			log.Fatal(err)
 		}
 
-		fmt.Println("\nOperation completed successfully!")
+		fmt.Print("\nOperation completed successfully!\n")
 	}
 }
