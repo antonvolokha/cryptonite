@@ -1,5 +1,14 @@
 # Cryptonite
 
+```
+   ______                 __             _ __    
+  / ____/______  ______  / /_____  ____(_) /__  
+ / /   / ___/ / / / __ \/ __/ __ \/ __ \/ / _ \ 
+/ /___/ /  / /_/ / /_/ / /_/ /_/ / / / / /  __/ 
+\____/_/   \__, / .___/\__/\____/_/ /_/_/\___/  
+          /____/_/                               
+```
+
 Cryptonite is a CLI utility for secure file and folder encryption with the ability to hide data in MP3 files using steganography.
 
 ## Features
