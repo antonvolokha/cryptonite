@@ -1,5 +1,8 @@
-PASSWORD="mysecretpass"
+#!/bin/bash
 CONTAINER_NAME="container.enc"
 
-go run ../cmd/main.go -encrypt -input ./data -output $CONTAINER_NAME -password $PASSWORD
-go run ../cmd/main.go -decrypt -input container.enc -output ./results -password $PASSWORD
+# Encrypt
+printf "mysecretpass" | go run ../cmd/main.go -encrypt -input ./data -output $CONTAINER_NAME
+
+# Decrypt
+printf "mysecretpass" | go run ../cmd/main.go -decrypt -input $CONTAINER_NAME -output ./results

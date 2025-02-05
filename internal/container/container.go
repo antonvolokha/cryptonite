@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/schollz/progressbar/v3"
 )
 
 type FileEntry struct {
@@ -125,6 +127,26 @@ func (c *Container) ExtractAll(outputDir string) error {
 		if err := os.WriteFile(fullPath, file.Data, 0644); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (c *Container) ExtractAllWithProgress(outputDir string, bar *progressbar.ProgressBar) error {
+	for _, file := range c.Files {
+		fullPath := filepath.Join(outputDir, filepath.Base(file.Path))
+
+		// Create directories if needed
+		if err := os.MkdirAll(filepath.Dir(fullPath), 0755); err != nil {
+			return err
+		}
+
+		// Write file
+		if err := os.WriteFile(fullPath, file.Data, 0644); err != nil {
+			return err
+		}
+
+		bar.Add(1)
 	}
 
 	return nil
