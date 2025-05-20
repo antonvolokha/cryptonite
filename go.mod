@@ -1,8 +1,11 @@
 module cryptoutils
 
-go 1.21
+go 1.22
+
+toolchain go1.23.4
 
 require (
+	github.com/klauspost/compress v1.18.0
 	github.com/schollz/progressbar/v3 v3.14.1
 	golang.org/x/term v0.28.0
 )

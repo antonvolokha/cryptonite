@@ -25,7 +25,7 @@ const asciiArt = `
           /____/_/                               
 `
 
-const version = "v0.0.1"
+const version = "v0.0.3"
 
 func showHelp() {
 	fmt.Printf("%s\nVersion: %s\n\n", asciiArt, version)
