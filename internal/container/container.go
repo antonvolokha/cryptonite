@@ -22,17 +22,17 @@ type FileEntry struct {
 const (
 	VersionUncompressed byte = 0
 	VersionCompressed   byte = 1
-	CurrentVersion     byte = VersionCompressed
+	CurrentVersion      byte = VersionCompressed
 )
 
 type Container struct {
-	Files []FileEntry
+	Files          []FileEntry
 	UseCompression bool // whether to use compression when serializing
 }
 
 func NewContainer() *Container {
 	return &Container{
-		Files: make([]FileEntry, 0),
+		Files:          make([]FileEntry, 0),
 		UseCompression: true, // Enable compression by default for new containers
 	}
 }

@@ -213,7 +213,7 @@ func createLegacyFormatData(t *testing.T, tmpDir string, testFiles map[string][]
 
 	for name, content := range testFiles {
 		path := filepath.Join(tmpDir, name)
-		
+
 		// Write path length and path
 		if err := binary.Write(buf, binary.LittleEndian, int64(len(path))); err != nil {
 			t.Fatalf("Failed to write path length: %v", err)

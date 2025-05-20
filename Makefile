@@ -9,7 +9,7 @@ INSTALL_DIR=/usr/local/bin
 PLATFORMS=linux darwin windows
 ARCHITECTURES=amd64 arm64
 
-.PHONY: all clean install uninstall
+.PHONY: all clean install uninstall lint lint-fix
 
 all: clean build
 
@@ -41,4 +41,18 @@ install:
 	@chmod +x $(INSTALL_DIR)/$(BINARY_NAME)
 
 uninstall:
-	@rm -f $(INSTALL_DIR)/$(BINARY_NAME) 
+	@rm -f $(INSTALL_DIR)/$(BINARY_NAME)
+
+# Check if golangci-lint is installed
+check-lint-deps:
+	@which golangci-lint > /dev/null || (echo "Installing golangci-lint..." && go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest)
+
+# Run linter
+lint: check-lint-deps
+	@echo "Running linter..."
+	@golangci-lint run ./...
+
+# Auto-fix linting errors where possible
+lint-fix: check-lint-deps
+	@echo "Auto-fixing linting errors..."
+	@golangci-lint run --fix ./...

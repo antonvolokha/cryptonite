@@ -1,29 +1,38 @@
+version: "2"
 linters:
   enable:
-    - gofmt
     - revive
-    - govet
-    - errcheck
-    - staticcheck
-    - gosimple
-    - ineffassign
-
-run:
-  deadline: 5m
-
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - errcheck
-    - path: internal/container/container.go
-      text: "Error return value of .((os|io)\\..*|.*Close|.*Flush|.*Write|.*Sync) is not checked"
-      linters:
-        - errcheck
-
-linters-settings:
-  revive:
+  settings:
+    revive:
+      rules:
+        - name: exported
+          severity: warning
+          disabled: false
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
     rules:
-      - name: exported
-        severity: warning
-        disabled: false 
+      - linters:
+          - errcheck
+        path: _test\.go
+      - linters:
+          - errcheck
+        path: internal/container/container.go
+        text: Error return value of .((os|io)\..*|.*Close|.*Flush|.*Write|.*Sync) is not checked
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
