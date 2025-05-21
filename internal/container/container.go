@@ -8,8 +8,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/klauspost/compress/zstd"
 	"github.com/schollz/progressbar/v3"
+	"github.com/ulikunitz/xz/lzma"
 )
 
 type FileEntry struct {
@@ -21,7 +21,7 @@ type FileEntry struct {
 // Version constants to ensure backward compatibility
 const (
 	VersionUncompressed byte = 0
-	VersionCompressed   byte = 1
+	VersionCompressed   byte = 1 // Previously zstd, now LZMA2
 	CurrentVersion      byte = VersionCompressed
 )
 
@@ -86,16 +86,19 @@ func (c *Container) Bytes() []byte {
 		contentBuf.Write(file.Data)
 	}
 
-	// If compression is enabled, compress the content
+	// If compression is enabled, compress the content with LZMA2
 	if c.UseCompression {
-		encoder, err := zstd.NewWriter(buf)
+		// Create LZMA2 writer with default settings
+		w, err := lzma.NewWriter2(buf)
 		if err != nil {
 			panic(err)
 		}
-		if _, err := encoder.Write(contentBuf.Bytes()); err != nil {
+		
+		if _, err := w.Write(contentBuf.Bytes()); err != nil {
 			panic(err)
 		}
-		if err := encoder.Close(); err != nil {
+		
+		if err := w.Close(); err != nil {
 			panic(err)
 		}
 	} else {
@@ -125,12 +128,11 @@ func (c *Container) FromBytes(data []byte) error {
 		c.UseCompression = false
 
 	case VersionCompressed:
-		// For compressed data, set up a zstd decoder
-		decoder, err := zstd.NewReader(bytes.NewReader(data))
+		// For compressed data, set up a LZMA2 decoder
+		decoder, err := lzma.NewReader2(bytes.NewReader(data))
 		if err != nil {
-			return fmt.Errorf("failed to create zstd decoder: %w", err)
+			return fmt.Errorf("failed to create LZMA2 decoder: %w", err)
 		}
-		defer decoder.Close()
 		contentReader = decoder
 		c.UseCompression = true
 
