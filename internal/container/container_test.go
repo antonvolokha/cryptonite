@@ -87,9 +87,18 @@ func TestCompressedContainer(t *testing.T) {
 		t.Error("Container serialization produced empty data")
 	}
 
-	// Make sure the first byte is the compressed version indicator
-	if data[0] != VersionCompressed {
-		t.Errorf("Expected compressed version byte %d, got %d", VersionCompressed, data[0])
+	// Make sure the magic number is present (first 2 bytes)
+	if !bytes.Equal(data[0:2], MagicNumber) {
+		t.Errorf("Missing magic number in container header")
+	}
+
+	// Make sure the version is correct (next 2 bytes)
+	var version uint16
+	if err := binary.Read(bytes.NewReader(data[2:4]), binary.LittleEndian, &version); err != nil {
+		t.Fatalf("Failed to read version: %v", err)
+	}
+	if version != VersionCompressed {
+		t.Errorf("Expected compressed version %d, got %d", VersionCompressed, version)
 	}
 
 	// Test deserialization
@@ -137,9 +146,18 @@ func TestUncompressedContainer(t *testing.T) {
 		t.Error("Container serialization produced empty data")
 	}
 
-	// Make sure the first byte is the uncompressed version indicator
-	if data[0] != VersionUncompressed {
-		t.Errorf("Expected uncompressed version byte %d, got %d", VersionUncompressed, data[0])
+	// Make sure the magic number is present (first 2 bytes)
+	if !bytes.Equal(data[0:2], MagicNumber) {
+		t.Errorf("Missing magic number in container header")
+	}
+
+	// Make sure the version is correct (next 2 bytes)
+	var version uint16
+	if err := binary.Read(bytes.NewReader(data[2:4]), binary.LittleEndian, &version); err != nil {
+		t.Fatalf("Failed to read version: %v", err)
+	}
+	if version != VersionUncompressed {
+		t.Errorf("Expected uncompressed version %d, got %d", VersionUncompressed, version)
 	}
 
 	// Test deserialization
