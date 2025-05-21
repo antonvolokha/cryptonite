@@ -93,11 +93,11 @@ func (c *Container) Bytes() []byte {
 		if err != nil {
 			panic(err)
 		}
-		
+
 		if _, err := w.Write(contentBuf.Bytes()); err != nil {
 			panic(err)
 		}
-		
+
 		if err := w.Close(); err != nil {
 			panic(err)
 		}
